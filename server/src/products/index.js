@@ -4,7 +4,8 @@ const productModel = require("../functions/productModel");
 const reviewModel = require("../functions/reviewModel");
 const router = express.Router();
 const q2m = require("query-to-mongo");
-var Cart = require('../functions/cart');
+const Cart = require('../functions/cart');
+const shopController = require('../functions/shop');
 
 router
   .route("/")
@@ -36,6 +37,7 @@ router
       }
       console.log(criteria);
       const products = await productModel.find(criteria)
+        .populate('Review')
         .skip(10 * page)
         .limit(10);
       const numOfproducts = await productModel.count(criteria);
@@ -125,9 +127,16 @@ router.route("/:id/reviews").post(async (req, res, next) => {
       next(error)
     }
   })
+
+router.post('/add-to-cart', shopController.addToCart);
+
+router.get('/cart', shopController.getCart);
+
+router.post('/delete-cart', shopController.deleteInCart);
+
   
 
-  router.route("/add-to-cart/:id").get(async (req, res, next) => {
+  /* router.route("/add-to-cart").get(async (req, res, next) => {
     try {
       const productId  = req.params.id
       const cart = new Cart(req.session.cart ? req.session.cart.items : {});
@@ -154,7 +163,7 @@ router.route("/:id/reviews").post(async (req, res, next) => {
     } catch (error) {
       next(error)
     }
-  })
+  }) */
 
 
 
